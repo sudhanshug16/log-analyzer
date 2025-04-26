@@ -4,32 +4,14 @@ import { encode } from "gpt-tokenizer";
 const DEFAULT_CHUNK_SIZE = 250_000;
 const DEFAULT_MODEL = "google/gemini-2.5-flash-preview";
 
-// Pricing data (per 1M tokens, in USD)
-interface ModelPricing {
-  input: number;
-  output: number;
-}
-
-const MODEL_PRICING: Record<string, ModelPricing> = {
-  "google/gemini-2.5-flash-preview": { input: 0.35, output: 1.05 },
-  "anthropic/claude-3-haiku-20240307": { input: 0.25, output: 1.25 },
-  "anthropic/claude-3-opus-20240229": { input: 15, output: 75 },
-  "anthropic/claude-3-sonnet-20240229": { input: 3, output: 15 },
-  "meta-llama/llama-3-70b-instruct": { input: 0.6, output: 0.8 },
-  "meta-llama/llama-3-8b-instruct": { input: 0.15, output: 0.2 },
-};
-
-// Default pricing for unknown models
-const DEFAULT_PRICING: ModelPricing = { input: 1, output: 2 };
+// Cache for tokenizer results
+const tokenCache = new Map<string, number>();
 
 type Args = {
   model: string;
   help: boolean;
   chunkSize: number;
 };
-
-// Cache for tokenizer results
-const tokenCache = new Map<string, number>();
 
 // Helper function to get token count with caching
 async function getTokenCount(text: string): Promise<number> {
@@ -184,42 +166,12 @@ async function chunkText(
   return chunks;
 }
 
-function calculateCost(
-  model: string,
-  inputTokens: number,
-  outputTokens: number
-): { cost: number; inputCost: number; outputCost: number } {
-  const pricing = MODEL_PRICING[model] || DEFAULT_PRICING;
-
-  // Convert from per 1M tokens to per token
-  const inputRate = pricing.input / 1_000_000;
-  const outputRate = pricing.output / 1_000_000;
-
-  const inputCost = inputTokens * inputRate;
-  const outputCost = outputTokens * outputRate;
-
-  return {
-    inputCost,
-    outputCost,
-    cost: inputCost + outputCost,
-  };
-}
-
-async function analyzeLogs(chunks: string[], model: string): Promise<string[]> {
+async function analyzeLogs(chunks: string[], model: string) {
   console.log("Initializing OpenAI client with OpenRouter base URL");
   const openai = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: process.env.OPENROUTER_API_KEY,
   });
-
-  const systemPromptContent = `
-    You are a helpful assistant whose job is to analyze logs and give the user a summary of errors or notable things about the logs.
-
-    You will be given log files in chunks because it may be too long and your job is to iterate on the chunks and provide the user with the summary.
-  `;
-
-  // Pre-compute system prompt tokens
-  const systemPromptTokens = await getTokenCount(systemPromptContent);
 
   // Pre-compute chunk token counts
   console.log("Pre-computing token counts for all chunks...");
@@ -232,13 +184,20 @@ async function analyzeLogs(chunks: string[], model: string): Promise<string[]> {
     }
   }
 
-  const systemPrompt: OpenAI.ChatCompletionMessageParam = {
-    role: "developer",
-    content: systemPromptContent,
-  };
+  const messages: OpenAI.ChatCompletionMessageParam[] = [
+    {
+      role: "developer",
+      content: `
+    You are a helpful assistant whose job is to analyze logs and give the user a summary of errors or notable things about the logs.
 
-  const analysis: string[] = [];
-  let totalCost = 0;
+    You will be given log files in chunks because it may be too long and your job is to iterate on the chunks and provide the user with the summary.
+
+    Keep the output super short and concise. Do not give a report - just a summary of most important things (a couple of paragraphs with pointers).
+  `,
+    },
+  ];
+  let analysis = "";
+
   let totalInputTokens = 0;
   let totalOutputTokens = 0;
 
@@ -250,19 +209,17 @@ async function analyzeLogs(chunks: string[], model: string): Promise<string[]> {
       console.log(`\nProcessing chunk ${i + 1}/${chunks.length}...`);
 
       const chunkInputTokens = chunkTokenCounts[i] || 0; // Default to 0 if undefined
-      const totalChunkInputTokens = chunkInputTokens + systemPromptTokens;
+      const totalChunkInputTokens = chunkInputTokens;
 
       console.warn(
-        `Chunk ${i + 1}/${
-          chunks.length
-        }: ${chunkInputTokens} content tokens + ${systemPromptTokens} prompt tokens = ${totalChunkInputTokens} total input tokens`
+        `Chunk ${i + 1}/${chunks.length}: ${chunkInputTokens} content tokens`
       );
 
       console.log(`Sending API request to model: ${model}...`);
       const response = await openai.chat.completions.create({
         model,
         messages: [
-          systemPrompt,
+          ...messages,
           { role: "user", content: chunk } as OpenAI.ChatCompletionMessageParam,
         ],
       });
@@ -273,7 +230,14 @@ async function analyzeLogs(chunks: string[], model: string): Promise<string[]> {
         console.log(
           `Analysis result for chunk ${i + 1}: ${content.length} characters`
         );
-        analysis.push(content);
+        messages.push({
+          role: "user",
+          content: `Chunk ${i + 1} of ${
+            chunks.length
+          }: [truncated for brevity]`,
+        });
+        messages.push({ role: "assistant", content });
+        analysis = content;
       } else {
         console.warn(`No content returned for chunk ${i + 1}`);
       }
@@ -281,30 +245,17 @@ async function analyzeLogs(chunks: string[], model: string): Promise<string[]> {
       // Get usage information from response
       const usage = response.usage;
       if (usage) {
-        // Calculate costs
         const outputTokens =
           usage.completion_tokens || (await getTokenCount(content));
         const inputTokens = usage.prompt_tokens || totalChunkInputTokens;
 
-        const { cost, inputCost, outputCost } = calculateCost(
-          model,
-          inputTokens,
-          outputTokens
-        );
-
         totalInputTokens += inputTokens;
         totalOutputTokens += outputTokens;
-        totalCost += cost;
 
         console.warn(
           `Chunk ${
             i + 1
           } usage: ${inputTokens} input tokens, ${outputTokens} output tokens`
-        );
-        console.warn(
-          `Chunk ${i + 1} cost: $${inputCost.toFixed(
-            6
-          )} (input) + $${outputCost.toFixed(6)} (output) = $${cost.toFixed(6)}`
         );
       } else {
         console.warn(`No usage information available for chunk ${i + 1}`);
@@ -323,7 +274,6 @@ async function analyzeLogs(chunks: string[], model: string): Promise<string[]> {
       totalInputTokens + totalOutputTokens
     } (${totalInputTokens} input, ${totalOutputTokens} output)`
   );
-  console.warn(`Total cost: $${totalCost.toFixed(6)}`);
 
   return analysis;
 }
@@ -366,7 +316,7 @@ async function main() {
     } else {
       console.log(`Analysis complete. Generated ${results.length} result(s)`);
       console.log("\n--- ANALYSIS RESULTS ---\n");
-      console.log(results.join("\n\n---\n\n"));
+      console.log(results);
     }
   } catch (error) {
     console.error(
