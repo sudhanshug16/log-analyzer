@@ -1,0 +1,17 @@
+{
+  "name": "log-analyzer",
+  "module": "index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "gpt-tokenizer": "^2.9.0",
+    "openai": "^4.96.0",
+    "tokenizers": "^0.13.3"
+  }
+}
