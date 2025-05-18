@@ -1,5 +1,5 @@
 {
-  "name": "log-analyzer",
+  "name": "ai-log-analyzer",
   "module": "index.ts",
   "version": "0.0.2",
   "description": "CLI tool that analyzes logs using AI to identify errors and notable patterns",
@@ -11,7 +11,8 @@
     "url": "https://github.com/sudhanshug16/log-analyzer.git"
   },
   "bin": {
-    "log-analyzer": "./dist/index.js"
+    "ai-log-analyzer": "./dist/index.js",
+    "ala": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "files": [
