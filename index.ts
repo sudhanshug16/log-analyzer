@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import OpenAI from "openai";
 import { encode } from "gpt-tokenizer";
 

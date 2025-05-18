@@ -1,13 +1,34 @@
 {
   "name": "log-analyzer",
   "module": "index.ts",
+  "version": "0.0.2",
+  "description": "CLI tool that analyzes logs using AI to identify errors and notable patterns",
+  "author": "Sudhanshu Gautam",
+  "license": "MIT",
+  "keywords": ["log", "analyzer", "log-analyzer", "ai", "cli"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sudhanshug16/log-analyzer.git"
+  },
+  "bin": {
+    "log-analyzer": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "start": "bun run index.ts",
+    "build": "bun build index.ts --outdir ./dist --target node",
+    "prepublishOnly": "bun run build"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
-  "private": true,
+  "private": false,
   "type": "module",
   "dependencies": {
     "gpt-tokenizer": "^2.9.0",
