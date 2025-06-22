@@ -1,132 +1,111 @@
-body {
-  font-family: system-ui, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f4f4f4;
-  color: #333;
+@import "tailwindcss";
+@plugin "daisyui" {
+  prefix: "d-";
+  themes: light --default, dark;
 }
 
-.container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 1rem 2rem;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-  margin-top: 0;
-  text-align: center;
-}
-
-section {
-  margin-bottom: 1.5rem;
-}
-
-.field-group {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.field-group input[type="text"],
-.field-group input[type="password"],
-textarea {
-  flex: 1;
-  padding: 0.5rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-button {
-  padding: 0.6rem 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button.primary,
-#saveHostBtn,
-#saveKeyBtn {
-  background-color: #007bff;
-  color: #fff;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-.status {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: green;
-}
-
-pre {
-  white-space: pre-wrap;
-  background: #f8f8f8;
-  padding: 1rem;
-  border-radius: 4px;
-  max-height: 300px;
-  overflow: auto;
-}
-
-#logSizeInfo {
-  font-size: 0.9rem;
-  color: #666;
-}
-
-/* Lightweight progress bar */
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-  display: none; /* shown when analyzing */
-  margin: 0.75rem 0;
-}
-
+/* Custom animations and utilities */
 .progress-bar-inner {
-  height: 100%;
-  width: 0%;
-  background: #007bff;
   transition: width 0.25s ease;
 }
 
-input[type="range"] {
-  flex: 1;
+/* Two-color palette override */
+:root {
+  --color-bg: #f8fafc;      /* slate-50 */
+  --color-card-bg: #ffffff; /* slate-0 (white) */
+  --color-border: #e2e8f0;  /* slate-200 */
+  --color-accent: #0f172a;  /* slate-900 */
+  --color-text: #1e293b;    /* slate-800 */
+  --color-text-muted: #475569; /* slate-600 */
+  
+  /* DaisyUI range variables */
+  --range-shdw: 0 0 0 2px hsl(0 0% 100%);
+  --p: 210 20% 8%;          /* primary color for range thumb */
+  --pc: 0 0% 100%;          /* primary content color */
+  --b1: 0 0% 100%;          /* base background */
+  --b2: 0 0% 95%;           /* base 200 */
+  --b3: 0 0% 89%;           /* base 300 - range track */
+  --bc: 214 20% 21%;        /* base content */
 }
 
-textarea#instrInput {
-  width: 100%;
-  resize: vertical;
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
-/* ── Conversation history ─────────────────────────────── */
-#historyOutput.history-container {
-  max-height: 350px;
-  overflow-y: auto;
-  padding: 0.5rem;
+/* Card backgrounds */
+.d-card {
+  background-color: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
 }
 
-.history-message {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
+/* Primary coloured elements */
+.d-btn-primary,
+.d-checkbox-primary:checked,
+.d-progress-primary .progress-bar-inner,
+.bg-primary {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #ffffff;
 }
-.history-message.user   { justify-content: flex-start; }
-.history-message.assist { justify-content: flex-end;  }
 
-.history-bubble {
-  max-width: 75%;
-  white-space: pre-wrap;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  font-size: 0.9rem;
+/* Range slider fixes */
+.d-range-primary {
+  --range-shdw: 0 0 0 2px #e2e8f0;
 }
-.user   .history-bubble { background:#e0e7ff; }
-.assist .history-bubble { background:#d1fadf; } 
+
+
+
+.text-primary {
+  color: var(--color-accent);
+}
+
+.bg-base-300 {
+  background-color: var(--color-card-bg);
+}
+
+/* Outline button border color tweak */
+.d-btn-outline {
+  border-color: var(--color-accent);
+}
+
+/* Muted / helper text */
+.opacity-70,
+.d-label-text {
+  color: var(--color-text-muted);
+}
+
+/* Disabled inputs */
+input:disabled,
+textarea:disabled,
+select:disabled,
+.disabled,
+input[aria-disabled="true"],
+textarea[aria-disabled="true"] {
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+/* Progress bar track */
+.d-progress {
+  background-color: var(--color-border);
+}
+
+.d-progress-primary .progress-bar-inner {
+  background-color: var(--color-accent);
+}
+
+/* Placeholder color */
+::placeholder {
+  color: var(--color-text-muted);
+  opacity: 1;
+}
+
+/* Divider */
+.d-divider {
+  color: var(--color-text-muted);
+} 

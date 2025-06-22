@@ -42,9 +42,15 @@ import { syncChunkInputs, updateKeyStatus } from "./ui.ts";
 function appendHistory(inc: string) {
   const addMsg = (role: "user" | "assist", txt: string) => {
     const wrap = document.createElement("div");
-    wrap.className = `history-message ${role}`;
+    wrap.className = `flex gap-2 mb-4 ${
+      role === "user" ? "justify-start" : "justify-end"
+    }`;
     const bubble = document.createElement("pre");
-    bubble.className = "history-bubble";
+    bubble.className = `max-w-3/4 whitespace-pre-wrap p-3 rounded-lg text-sm ${
+      role === "user"
+        ? "bg-primary text-primary-content"
+        : "bg-secondary text-secondary-content"
+    }`;
     bubble.textContent = txt.trim();
     wrap.appendChild(bubble);
     historyOutput.appendChild(wrap);
@@ -94,17 +100,17 @@ let decryptedApiKey: string | null = null;
 // Initial UI based on stored keys
 if (storedEnc) {
   // ----- Encrypted key flow -----
-  passphraseGroup.style.display = "block";
+  passphraseGroup.classList.remove("hidden");
   saveKeyChk.checked = true;
   savePlainChk.checked = false;
 
   const storedHint = localStorage.getItem("encHint") || "";
   if (storedHint) {
     hintDisplay.textContent = `Hint: ${storedHint}`;
-    hintDisplay.style.display = "block";
+    hintDisplay.classList.remove("hidden");
   }
 
-  passHintInput.style.display = "none";
+  passHintInput.classList.add("hidden");
 
   passphraseInput.addEventListener("input", async () => {
     const pass = passphraseInput.value;
@@ -133,15 +139,15 @@ if (storedEnc) {
   apiKeyInput.disabled = false;
   savePlainChk.checked = true;
   saveKeyChk.checked = false;
-  passphraseGroup.style.display = "none";
-  passHintInput.style.display = "none";
-  hintDisplay.style.display = "none";
+  passphraseGroup.classList.add("hidden");
+  passHintInput.classList.add("hidden");
+  hintDisplay.classList.add("hidden");
 } else {
   // ----- No key stored -----
-  passphraseGroup.style.display = "none";
+  passphraseGroup.classList.add("hidden");
   apiKeyInput.disabled = false;
-  passHintInput.style.display = "inline-block";
-  hintDisplay.style.display = "none";
+  passHintInput.classList.remove("hidden");
+  hintDisplay.classList.add("hidden");
 }
 
 // Checkbox toggle behavior
@@ -149,12 +155,12 @@ saveKeyChk.addEventListener("change", () => {
   if (saveKeyChk.checked) {
     // Ensure only one save mode at a time
     savePlainChk.checked = false;
-    passphraseGroup.style.display = "block";
+    passphraseGroup.classList.remove("hidden");
     if (!storedEnc) {
-      passHintInput.style.display = "inline-block";
+      passHintInput.classList.remove("hidden");
     }
   } else {
-    passphraseGroup.style.display = "none";
+    passphraseGroup.classList.add("hidden");
   }
 });
 
@@ -162,7 +168,7 @@ saveKeyChk.addEventListener("change", () => {
 savePlainChk.addEventListener("change", () => {
   if (savePlainChk.checked) {
     saveKeyChk.checked = false;
-    passphraseGroup.style.display = "none";
+    passphraseGroup.classList.add("hidden");
   }
 });
 
@@ -177,8 +183,8 @@ clearKeyBtn.addEventListener("click", () => {
   passHintInput.value = "";
   saveKeyChk.checked = false;
   savePlainChk.checked = false;
-  passphraseGroup.style.display = "none";
-  hintDisplay.style.display = "none";
+  passphraseGroup.classList.add("hidden");
+  hintDisplay.classList.add("hidden");
   updateKeyStatus();
 });
 
@@ -240,17 +246,17 @@ maxChunkInput.addEventListener("change", () => {
 
 // --- History toggle ---
 toggleHistoryBtn.addEventListener("click", () => {
-  const showing = historyOutput.style.display === "block";
-  historyOutput.style.display = showing ? "none" : "block";
+  const showing = !historyOutput.classList.contains("hidden");
+  historyOutput.classList.toggle("hidden");
   toggleHistoryBtn.textContent = showing
-    ? "Show Conversation History"
-    : "Hide Conversation History";
+    ? "📜 Show Conversation History"
+    : "📜 Hide Conversation History";
 });
 
 analyzeBtn.addEventListener("click", async () => {
   // Reset progress UI
   progressBarInner.style.width = "0%";
-  progressBar.style.display = "block";
+  progressBar.classList.remove("hidden");
 
   let logsText = logsInput.value.trim();
 
@@ -297,14 +303,14 @@ analyzeBtn.addEventListener("click", async () => {
       if (hintVal) {
         localStorage.setItem("encHint", hintVal);
         hintDisplay.textContent = `Hint: ${hintVal}`;
-        hintDisplay.style.display = "block";
+        hintDisplay.classList.remove("hidden");
       } else {
         localStorage.removeItem("encHint");
-        hintDisplay.style.display = "none";
+        hintDisplay.classList.add("hidden");
       }
 
       // Hide hint input after save
-      passHintInput.style.display = "none";
+      passHintInput.classList.add("hidden");
       updateKeyStatus();
     }
   } else if (savePlainChk.checked) {
@@ -313,14 +319,14 @@ analyzeBtn.addEventListener("click", async () => {
     // Remove any encrypted records
     localStorage.removeItem("encApiKey");
     localStorage.removeItem("encHint");
-    hintDisplay.style.display = "none";
+    hintDisplay.classList.add("hidden");
     updateKeyStatus();
   } else {
     // Do not save anything
     localStorage.removeItem("encApiKey");
     localStorage.removeItem("encHint");
     localStorage.removeItem("plainApiKey");
-    hintDisplay.style.display = "none";
+    hintDisplay.classList.add("hidden");
     updateKeyStatus();
   }
 
@@ -366,7 +372,7 @@ analyzeBtn.addEventListener("click", async () => {
     analyzeBtn.disabled = false;
     // Hide progress bar after slight delay to allow user to see 100%
     setTimeout(() => {
-      progressBar.style.display = "none";
+      progressBar.classList.add("hidden");
     }, 800);
   }
 });

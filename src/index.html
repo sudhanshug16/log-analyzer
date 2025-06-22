@@ -1,87 +1,202 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Log Analyzer</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
-    <main class="container">
-      <h1>AI Log Analyzer</h1>
+  <body class="min-h-screen">
+    <main class="p-6">
+      <h1 class="text-3xl font-bold mb-6 text-center text-primary">🤖 AI Log Analyzer</h1>
+      <div class="grid gap-6 md:grid-cols-12">
+        <!-- Left column – configuration -->
+        <aside id="configPanel" class="space-y-6 md:col-span-4">
+          <!-- Host configuration -->
+          <div class="d-card shadow">
+            <div class="d-card-body">
+              <h2 class="d-card-title text-lg">🌐 Server Host</h2>
+              <div class="form-control">
+                <input
+                  type="text"
+                  id="hostInput"
+                  placeholder="https://openrouter.ai/api/v1"
+                  class="d-input d-input-bordered w-full"
+                />
+              </div>
+            </div>
+          </div>
 
-      <!-- Host configuration -->
-      <section>
-        <h2>Server Host</h2>
-        <div class="field-group">
-          <input type="text" id="hostInput" placeholder="https://openrouter.ai/api/v1" />
-        </div>
-      </section>
+          <!-- API Key configuration -->
+          <div class="d-card shadow">
+            <div class="d-card-body">
+              <h2 class="d-card-title text-lg">🔑 API Key</h2>
+              <div class="form-control mb-4">
+                <input
+                  type="password"
+                  id="apiKeyInput"
+                  placeholder="Enter API key"
+                  class="d-input d-input-bordered w-full"
+                />
+              </div>
+              <div class="flex flex-wrap gap-4 mb-4">
+                <label class="d-label cursor-pointer">
+                  <input type="checkbox" id="saveKeyChk" class="d-checkbox d-checkbox-primary" />
+                  <span class="d-label-text ml-2">Save encrypted</span>
+                </label>
+                <label class="d-label cursor-pointer">
+                  <input type="checkbox" id="savePlainChk" class="d-checkbox d-checkbox-primary" />
+                  <span class="d-label-text ml-2">Save insecurely (plain)</span>
+                </label>
+              </div>
+              <div class="form-control hidden" id="passphraseGroup">
+                <div class="flex gap-2 mb-2">
+                  <input
+                    type="password"
+                    id="passphraseInput"
+                    placeholder="Passphrase"
+                    class="d-input d-input-bordered flex-1"
+                  />
+                  <input
+                    type="text"
+                    id="passHintInput"
+                    placeholder="Hint (optional)"
+                    class="d-input d-input-bordered flex-1"
+                  />
+                </div>
+                <p id="hintDisplay" class="text-sm opacity-70 hidden"></p>
+              </div>
+              <button id="clearKeyBtn" class="d-btn d-btn-error d-btn-sm hidden">Clear stored key</button>
+              <p id="keyStatus" class="text-sm text-success mt-2"></p>
+            </div>
+          </div>
 
-      <!-- API Key configuration -->
-      <section>
-        <h2>API Key</h2>
-        <div class="field-group">
-          <input type="password" id="apiKeyInput" placeholder="Enter API key" />
-          <label><input type="checkbox" id="saveKeyChk" /> Save encrypted</label>
-          <label><input type="checkbox" id="savePlainChk" /> Save insecurely (plain)</label>
-        </div>
-        <div class="field-group" id="passphraseGroup" style="display:none;">
-          <input type="password" id="passphraseInput" placeholder="Passphrase" />
-          <input type="text" id="passHintInput" placeholder="Hint (optional)" />
-          <p id="hintDisplay" class="hint" style="display:none;"></p>
-        </div>
-        <button id="clearKeyBtn" style="display:none;">Clear stored key</button>
-        <p id="keyStatus" class="status"></p>
-      </section>
+          <!-- Model & Chunk config -->
+          <div class="d-card shadow">
+            <div class="d-card-body">
+              <h2 class="d-card-title text-lg">⚙️ Analysis Settings</h2>
+              <div class="form-control mb-4">
+                <label class="d-label">
+                  <span class="d-label-text">Model</span>
+                </label>
+                <input
+                  type="text"
+                  id="modelInput"
+                  placeholder="Model (e.g. gpt-4o)"
+                  class="d-input d-input-bordered w-full"
+                />
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="form-control">
+                  <label class="d-label">
+                    <span class="d-label-text">Model max tokens</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="maxChunkInput"
+                    min="1000"
+                    step="1000"
+                    class="d-input d-input-bordered"
+                  />
+                </div>
+                <div class="form-control">
+                  <label class="d-label">
+                    <span class="d-label-text">Token limit</span>
+                  </label>
+                  <div class="flex gap-2 items-center">
+                    <input
+                      type="range"
+                      id="chunkSlider"
+                      min="1000"
+                      step="1000"
+                      class="d-range d-range-primary flex-1"
+                    />
+                    <input
+                      type="number"
+                      id="chunkInput"
+                      min="1000"
+                      step="1000"
+                      class="d-input d-input-bordered w-24"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <!-- Model & Chunk config -->
-      <section>
-        <h2>Analysis Settings</h2>
-        <div class="field-group">
-          <input type="text" id="modelInput" placeholder="Model (e.g. gpt-4o)" />
-        </div>
-        <div class="field-group">
-          <label style="min-width:120px;">Model max tokens:</label>
-          <input type="number" id="maxChunkInput" min="1000" step="1000" style="width:110px;" />
-        </div>
-        <div class="field-group">
-          <label style="min-width:120px;">Token limit:</label>
-          <input type="range" id="chunkSlider" min="1000" step="1000" />
-          <input type="number" id="chunkInput" min="1000" step="1000" style="width:110px;" />
-        </div>
-      </section>
+          <!-- Extra instructions -->
+          <div class="d-card shadow">
+            <div class="d-card-body">
+              <h2 class="d-card-title text-lg">📝 Additional Instructions</h2>
+              <textarea
+                id="instrInput"
+                rows="3"
+                placeholder="Any extra guidance for the AI..."
+                class="d-textarea d-textarea-bordered w-full resize-y"
+              ></textarea>
+            </div>
+          </div>
+        </aside>
 
-      <!-- Extra instructions -->
-      <section>
-        <h2>Additional Instructions</h2>
-        <textarea id="instrInput" rows="3" placeholder="Any extra guidance for the AI..."></textarea>
-      </section>
+        <!-- Right column – logs & output -->
+        <section id="analysisPanel" class="space-y-6 md:col-span-8">
+          <!-- Log input -->
+          <div class="d-card shadow">
+            <div class="d-card-body">
+              <h2 class="d-card-title text-lg">📋 Logs (paste up to 5&nbsp;MB)</h2>
+              <textarea
+                id="logsInput"
+                rows="10"
+                placeholder="Paste your log text here (≤5 MB)..."
+                class="d-textarea d-textarea-bordered w-full resize-y font-mono text-sm"
+              ></textarea>
+              <p id="logSizeInfo" class="text-sm opacity-70 mt-2"></p>
+              <div class="d-divider">OR</div>
+              <div class="form-control">
+                <label class="d-label">
+                  <span class="d-label-text">Choose a log file instead:</span>
+                </label>
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept=".log,.txt"
+                  class="d-file-input d-file-input-bordered w-full"
+                />
+              </div>
+              <button id="clearLogsBtn" class="d-btn d-btn-outline d-btn-sm mt-4">Clear Logs</button>
+            </div>
+          </div>
 
-      <!-- Log input -->
-      <section>
-        <h2>Logs (paste up to 5&nbsp;MB)</h2>
-        <textarea id="logsInput" rows="10" placeholder="Paste your log text here (≤5 MB)..."></textarea>
-        <p id="logSizeInfo"></p>
-        <p>If your logs are larger, choose a file instead:</p>
-        <input type="file" id="fileInput" accept=".log,.txt" />
-        <button id="clearLogsBtn" type="button">Clear Logs</button>
-      </section>
+          <button id="analyzeBtn" class="d-btn d-btn-primary d-btn-lg w-full">🚀 Analyze Logs</button>
 
-      <button id="analyzeBtn" class="primary">Analyze Logs</button>
+          <!-- Progress bar -->
+          <div id="progressBar" class="hidden">
+            <div class="flex justify-between text-sm mb-1">
+              <span>Analyzing...</span>
+              <span id="progressText">0%</span>
+            </div>
+            <div class="d-progress d-progress-primary">
+              <div id="progressBarInner" class="h-full bg-primary progress-bar-inner" style="width: 0%"></div>
+            </div>
+          </div>
 
-      <!-- Progress bar shown during analysis -->
-      <div id="progressBar" class="progress-bar">
-        <div id="progressBarInner" class="progress-bar-inner"></div>
+          <!-- Results -->
+          <div class="d-card shadow">
+            <div class="d-card-body">
+              <h2 class="d-card-title text-lg">📊 Analysis Result</h2>
+              <pre id="resultOutput" class="bg-base-300 p-4 rounded-lg overflow-auto max-h-80 text-sm whitespace-pre-wrap"></pre>
+            </div>
+          </div>
+
+          <!-- History toggle -->
+          <button id="toggleHistoryBtn" class="d-btn d-btn-ghost d-btn-sm w-full">📜 Show Conversation History</button>
+          <div id="historyOutput" class="d-card mt-2 hidden">
+            <div class="d-card-body max-h-80 overflow-y-auto">
+              <!-- History content will be populated by JS -->
+            </div>
+          </div>
+        </section>
       </div>
-
-      <section>
-        <h2>Analysis Result</h2>
-        <pre id="resultOutput"></pre>
-      </section>
-
-      <button id="toggleHistoryBtn" type="button">Show Conversation History</button>
-      <div id="historyOutput" class="history-container" style="display:none;"></div>
     </main>
 
     <script src="./script.ts" type="module"></script>

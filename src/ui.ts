@@ -52,5 +52,5 @@ export function updateKeyStatus() {
     keyStatus.textContent = "API key not stored.";
     keyStatus.style.color = "red";
   }
-  clearKeyBtn.style.display = enc || plain ? "inline-block" : "none";
+  clearKeyBtn.classList.toggle("hidden", !(enc || plain));
 }
