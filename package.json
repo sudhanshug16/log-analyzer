@@ -11,15 +11,17 @@
   },
   "scripts": {
     "dev": "bun ./src/index.html --console",
+    "build:css": "bunx @tailwindcss/cli -i ./src/styles.css -o ./dist/styles.css --minify",
     "build": "rm -rf dist && bun build ./src/index.html --outdir dist --minify",
     "preview": "bun run serve.ts",
     "start": "bun run serve.ts"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.10",
     "@types/bun": "latest",
-    "tailwindcss": "^4.1.0",
+    "bun-plugin-tailwind": "^0.0.15",
     "daisyui": "^5.0.43",
-    "bun-plugin-tailwind": "^0.0.15"
+    "tailwindcss": "^4.1.0"
   },
   "type": "module",
   "dependencies": {
