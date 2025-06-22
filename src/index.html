@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Log Analyzer</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="container">
+      <h1>AI Log Analyzer</h1>
+
+      <!-- Host configuration -->
+      <section>
+        <h2>Server Host</h2>
+        <div class="field-group">
+          <input type="text" id="hostInput" placeholder="https://openrouter.ai/api/v1" />
+        </div>
+      </section>
+
+      <!-- API Key configuration -->
+      <section>
+        <h2>API Key</h2>
+        <div class="field-group">
+          <input type="password" id="apiKeyInput" placeholder="Enter API key" />
+          <label><input type="checkbox" id="saveKeyChk" /> Save encrypted</label>
+          <label><input type="checkbox" id="savePlainChk" /> Save insecurely (plain)</label>
+        </div>
+        <div class="field-group" id="passphraseGroup" style="display:none;">
+          <input type="password" id="passphraseInput" placeholder="Passphrase" />
+          <input type="text" id="passHintInput" placeholder="Hint (optional)" />
+          <p id="hintDisplay" class="hint" style="display:none;"></p>
+        </div>
+        <button id="clearKeyBtn" style="display:none;">Clear stored key</button>
+        <p id="keyStatus" class="status"></p>
+      </section>
+
+      <!-- Model & Chunk config -->
+      <section>
+        <h2>Analysis Settings</h2>
+        <div class="field-group">
+          <input type="text" id="modelInput" placeholder="Model (e.g. gpt-4o)" />
+        </div>
+        <div class="field-group">
+          <label style="min-width:120px;">Model max tokens:</label>
+          <input type="number" id="maxChunkInput" min="1000" step="1000" style="width:110px;" />
+        </div>
+        <div class="field-group">
+          <label style="min-width:120px;">Token limit:</label>
+          <input type="range" id="chunkSlider" min="1000" step="1000" />
+          <input type="number" id="chunkInput" min="1000" step="1000" style="width:110px;" />
+        </div>
+      </section>
+
+      <!-- Extra instructions -->
+      <section>
+        <h2>Additional Instructions</h2>
+        <textarea id="instrInput" rows="3" placeholder="Any extra guidance for the AI..."></textarea>
+      </section>
+
+      <!-- Log input -->
+      <section>
+        <h2>Logs (paste up to 5&nbsp;MB)</h2>
+        <textarea id="logsInput" rows="10" placeholder="Paste your log text here (≤5 MB)..."></textarea>
+        <p id="logSizeInfo"></p>
+        <p>If your logs are larger, choose a file instead:</p>
+        <input type="file" id="fileInput" accept=".log,.txt" />
+        <button id="clearLogsBtn" type="button">Clear Logs</button>
+      </section>
+
+      <button id="analyzeBtn" class="primary">Analyze Logs</button>
+
+      <!-- Progress bar shown during analysis -->
+      <div id="progressBar" class="progress-bar">
+        <div id="progressBarInner" class="progress-bar-inner"></div>
+      </div>
+
+      <section>
+        <h2>Analysis Result</h2>
+        <pre id="resultOutput"></pre>
+      </section>
+
+      <button id="toggleHistoryBtn" type="button">Show Conversation History</button>
+      <div id="historyOutput" class="history-container" style="display:none;"></div>
+    </main>
+
+    <script src="./script.ts" type="module"></script>
+  </body>
+</html> 
