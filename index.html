@@ -17,6 +17,7 @@
           <div class="d-card shadow">
             <div class="d-card-body">
               <h2 class="d-card-title text-lg">🌐 Server Host</h2>
+              <p class="text-sm opacity-70 mb-2">Accepts any OpenAI API compatible endpoint.</p>
               <div class="form-control">
                 <input
                   type="text"
@@ -186,6 +187,22 @@
             <div class="d-card-body">
               <h2 class="d-card-title text-lg">📊 Analysis Result</h2>
               <pre id="resultOutput" class="bg-base-300 p-4 rounded-lg overflow-auto max-h-80 text-sm whitespace-pre-wrap"></pre>
+              
+              <!-- Share with AI Chat Apps -->
+              <div id="shareButtons" class="mt-4 hidden">
+                <div class="d-divider">Share with AI Chat</div>
+                <div class="flex flex-wrap gap-2">
+                  <button id="shareChatGPT" class="d-btn d-btn-outline d-btn-sm">
+                    🤖 ChatGPT
+                  </button>
+                  <button id="shareClaude" class="d-btn d-btn-outline d-btn-sm">
+                    🧠 Claude
+                  </button>
+                  <button id="shareT3Chat" class="d-btn d-btn-outline d-btn-sm">
+                    💬 T3 Chat
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 

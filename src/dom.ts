@@ -58,3 +58,13 @@ export const toggleHistoryBtn =
   document.querySelector<HTMLButtonElement>("#toggleHistoryBtn")!;
 export const historyOutput =
   document.querySelector<HTMLDivElement>("#historyOutput")!;
+
+// Share buttons
+export const shareButtons =
+  document.querySelector<HTMLDivElement>("#shareButtons")!;
+export const shareChatGPT =
+  document.querySelector<HTMLButtonElement>("#shareChatGPT")!;
+export const shareClaude =
+  document.querySelector<HTMLButtonElement>("#shareClaude")!;
+export const shareT3Chat =
+  document.querySelector<HTMLButtonElement>("#shareT3Chat")!;

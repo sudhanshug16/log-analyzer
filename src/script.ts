@@ -35,6 +35,10 @@ import {
   instrInput,
   toggleHistoryBtn,
   historyOutput,
+  shareButtons,
+  shareChatGPT,
+  shareClaude,
+  shareT3Chat,
 } from "./dom.ts";
 import { syncChunkInputs, updateKeyStatus } from "./ui.ts";
 
@@ -366,6 +370,11 @@ analyzeBtn.addEventListener("click", async () => {
 
     resultOutput.textContent = summary || "No summary generated";
     progressBarInner.style.width = "100%";
+
+    // Show share buttons if there's a result
+    if (summary && summary.trim()) {
+      shareButtons.classList.remove("hidden");
+    }
   } catch (err: any) {
     resultOutput.textContent = `Error: ${err.message || err}`;
   } finally {
@@ -375,4 +384,28 @@ analyzeBtn.addEventListener("click", async () => {
       progressBar.classList.add("hidden");
     }, 800);
   }
+});
+
+// Share button event listeners
+function shareToAI(baseUrl: string) {
+  const summary = resultOutput.textContent;
+  if (!summary) return;
+
+  const message = `Please help me analyze this log error summary:\n\n${summary}`;
+  const encodedMessage = encodeURIComponent(message);
+  const url = `${baseUrl}${encodedMessage}`;
+
+  window.open(url, "_blank");
+}
+
+shareChatGPT.addEventListener("click", () => {
+  shareToAI("https://chat.openai.com/?q=");
+});
+
+shareClaude.addEventListener("click", () => {
+  shareToAI("https://claude.ai/new?q=");
+});
+
+shareT3Chat.addEventListener("click", () => {
+  shareToAI("https://t3.chat/new?q=");
 });
