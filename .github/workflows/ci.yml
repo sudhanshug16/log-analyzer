@@ -2,9 +2,10 @@ name: CI/CD
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "bun-build"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 # Add permissions for GitHub Pages deployment
 permissions:
@@ -30,8 +31,6 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Type check & build
         run: bun run build
-      - name: Build CSS
-        run: bun run build:css
       - name: Setup Pages
         uses: actions/configure-pages@v4
         if: github.ref == 'refs/heads/main'
